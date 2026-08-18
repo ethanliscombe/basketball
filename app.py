@@ -258,7 +258,7 @@ if compare:
         )
 
         st.markdown(
-            f'<div class="score">{result:.1f}%</div>',
+            f"""<div class="score">{result["similarity"]:.1f}%</div>""",
             unsafe_allow_html=True
         )
 
