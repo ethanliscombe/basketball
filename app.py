@@ -1,193 +1,294 @@
 import streamlit as st
-import pandas as pd
+from nba_backend import compare_players, get_similarity_breakdown
 
-from nba_backend import (
-    find_player_suggestions,
-    compare_players_data,
-    get_similarity_breakdown,
-)
-
-
-# -----------------------------
-# PAGE SETUP
-# -----------------------------
+# --------------------------------------------------
+# PAGE CONFIG
+# --------------------------------------------------
 
 st.set_page_config(
-    page_title="NBA Player Comparison",
+    page_title="Nexus — NBA Player Comparison",
     page_icon="🏀",
-    layout="wide",
+    layout="wide"
 )
 
-st.title("🏀 NBA Player Comparison")
-st.write(
-    "Compare NBA players using statistics, player roles, "
-    "and similarity scores."
-)
+# --------------------------------------------------
+# CUSTOM CSS
+# --------------------------------------------------
+
+st.markdown("""
+<style>
+
+    /* Main background */
+    .stApp {
+        background:
+            radial-gradient(circle at top center, #182238 0%, #0b0f18 45%, #070a10 100%);
+        color: #f5f7fa;
+    }
+
+    /* Hide Streamlit default UI */
+    #MainMenu {
+        visibility: hidden;
+    }
+
+    footer {
+        visibility: hidden;
+    }
+
+    header {
+        background: transparent;
+    }
+
+    /* Main container */
+    .block-container {
+        max-width: 1200px;
+        padding-top: 2rem;
+        padding-bottom: 4rem;
+    }
+
+    /* Logo */
+    .logo {
+        font-size: 42px;
+        font-weight: 900;
+        letter-spacing: -2px;
+        margin-bottom: 0;
+    }
+
+    .logo span {
+        color: #6ea8ff;
+    }
+
+    .tagline {
+        color: #8993a7;
+        font-size: 15px;
+        margin-top: -8px;
+        margin-bottom: 35px;
+    }
+
+    /* Player input cards */
+    .player-label {
+        color: #8e99ad;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+
+    /* Inputs */
+    .stTextInput > div > div > input {
+        background: #111722 !important;
+        border: 1px solid #283246 !important;
+        border-radius: 12px !important;
+        color: white !important;
+        padding: 15px !important;
+        font-size: 16px !important;
+    }
+
+    .stTextInput > div > div > input:focus {
+        border: 1px solid #6ea8ff !important;
+        box-shadow: 0 0 0 1px #6ea8ff !important;
+    }
+
+    /* Compare button */
+    .stButton > button {
+        width: 100%;
+        height: 52px;
+        border-radius: 12px;
+        border: none;
+        background: linear-gradient(135deg, #4d8dff, #7567ff);
+        color: white;
+        font-size: 16px;
+        font-weight: 800;
+        transition: 0.2s;
+    }
+
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(78, 141, 255, 0.25);
+    }
+
+    /* Result card */
+    .result-card {
+        background: rgba(17, 23, 34, 0.85);
+        border: 1px solid #283246;
+        border-radius: 20px;
+        padding: 35px;
+        margin-top: 35px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+
+    .match-title {
+        text-align: center;
+        color: #8993a7;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 700;
+    }
+
+    .players {
+        text-align: center;
+        font-size: 27px;
+        font-weight: 800;
+        margin-top: 8px;
+    }
+
+    /* Similarity score */
+    .score {
+        text-align: center;
+        font-size: 72px;
+        font-weight: 900;
+        letter-spacing: -4px;
+        margin-top: 10px;
+        background: linear-gradient(135deg, #72a7ff, #9c82ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .score-label {
+        text-align: center;
+        color: #8993a7;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    /* Breakdown */
+    .section-title {
+        font-size: 20px;
+        font-weight: 800;
+        margin-top: 35px;
+        margin-bottom: 15px;
+    }
+
+    .stat-card {
+        background: #111722;
+        border: 1px solid #283246;
+        border-radius: 14px;
+        padding: 18px;
+        margin-bottom: 12px;
+    }
+
+    .stat-name {
+        color: #9ca7ba;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .stat-value {
+        font-size: 24px;
+        font-weight: 800;
+        margin-top: 5px;
+    }
+
+</style>
+""", unsafe_allow_html=True)
 
 
-# -----------------------------
+# --------------------------------------------------
+# HEADER
+# --------------------------------------------------
+
+st.markdown("""
+<div class="logo">NEXUS<span>.</span></div>
+<div class="tagline">
+NBA player comparison powered by statistics and player similarity
+</div>
+""", unsafe_allow_html=True)
+
+
+# --------------------------------------------------
 # PLAYER INPUTS
-# -----------------------------
+# --------------------------------------------------
 
 col1, col2 = st.columns(2)
 
 with col1:
+    st.markdown('<div class="player-label">Player 1</div>',
+                unsafe_allow_html=True)
+
     player1 = st.text_input(
         "Player 1",
-        placeholder="e.g. Jokic",
+        placeholder="e.g. Nikola Jokic",
+        label_visibility="collapsed"
     )
 
 with col2:
+    st.markdown('<div class="player-label">Player 2</div>',
+                unsafe_allow_html=True)
+
     player2 = st.text_input(
         "Player 2",
-        placeholder="e.g. Luka",
+        placeholder="e.g. Luka Doncic",
+        label_visibility="collapsed"
     )
 
 
-# -----------------------------
-# COMPARISON
-# -----------------------------
+st.write("")
 
-if st.button("Compare", type="primary"):
+compare = st.button("Compare Players")
+
+
+# --------------------------------------------------
+# COMPARISON
+# --------------------------------------------------
+
+if compare:
 
     if not player1 or not player2:
-        st.warning("Enter both players first.")
+
+        st.warning("Enter two NBA players to compare.")
 
     else:
-        result = compare_players_data(player1, player2)
 
-        if result is None:
-            st.error("Could not find one or both players.")
+        result = compare_players(player1, player2)
+        breakdown = get_similarity_breakdown(player1, player2)
 
-        elif result.get("multiple_matches"):
-            st.warning("Multiple players found. Please enter a more specific name.")
+        st.markdown('<div class="result-card">', unsafe_allow_html=True)
 
-            if isinstance(result["player1"], list):
-                st.write("Player 1 possibilities:")
-                st.write(result["player1"])
+        st.markdown(
+            '<div class="match-title">PLAYER MATCH</div>',
+            unsafe_allow_html=True
+        )
 
-            if isinstance(result["player2"], list):
-                st.write("Player 2 possibilities:")
-                st.write(result["player2"])
+        st.markdown(
+            f'<div class="players">{player1} <span style="color:#667085;">vs</span> {player2}</div>',
+            unsafe_allow_html=True
+        )
 
-        else:
-            p1 = result["player1"]
-            p2 = result["player2"]
+        st.markdown(
+            f'<div class="score">{result:.1f}%</div>',
+            unsafe_allow_html=True
+        )
 
-            # Overall similarity
-            st.divider()
+        st.markdown(
+            '<div class="score-label">Overall Similarity</div>',
+            unsafe_allow_html=True
+        )
 
-            st.subheader(
-                f"{p1['player_name']} vs {p2['player_name']}"
-            )
+        st.markdown(
+            '<div class="section-title">Similarity Breakdown</div>',
+            unsafe_allow_html=True
+        )
 
-            st.metric(
-                "Overall Similarity",
-                f"{result['similarity']:.2f}%"
-            )
+        # Create columns for breakdown
+        cols = st.columns(3)
 
-            # Roles
-            role_col1, role_col2 = st.columns(2)
+        items = list(breakdown.items())
 
-            with role_col1:
-                st.markdown(f"### {p1['player_name']}")
-                st.write(
-                    f"**Primary Role:** {result['role1']['primary']}"
-                )
-                if result["role1"]["secondary"]:
-                    st.write(
-                        f"**Secondary Role:** {result['role1']['secondary']}"
-                    )
+        for i, (stat, score) in enumerate(items):
 
-            with role_col2:
-                st.markdown(f"### {p2['player_name']}")
-                st.write(
-                    f"**Primary Role:** {result['role2']['primary']}"
-                )
-                if result["role2"]["secondary"]:
-                    st.write(
-                        f"**Secondary Role:** {result['role2']['secondary']}"
-                    )
+            with cols[i % 3]:
 
-            # Stats
-            st.divider()
-            st.subheader("📊 Statistics")
-
-            stat_names = {
-                "games": "Games",
-                "ppg": "PPG",
-                "rpg": "RPG",
-                "apg": "APG",
-                "spg": "SPG",
-                "bpg": "BPG",
-                "three_pct": "3P%",
-                "ft_pct": "FT%",
-            }
-
-            stats = []
-
-            for key, label in stat_names.items():
-                stats.append(
-                    {
-                        "Stat": label,
-                        p1["player_name"]: p1[key],
-                        p2["player_name"]: p2[key],
-                    }
+                st.markdown(
+                    f"""
+                    <div class="stat-card">
+                        <div class="stat-name">{stat}</div>
+                        <div class="stat-value">{score:.1f}%</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
                 )
 
-            stats_df = pd.DataFrame(stats)
-
-            # Format percentages
-            for column in [
-                p1["player_name"],
-                p2["player_name"],
-            ]:
-                stats_df[column] = stats_df[column].map(
-                    lambda x: f"{x:.2f}"
-                )
-
-            st.dataframe(
-                stats_df,
-                use_container_width=True,
-                hide_index=True,
-            )
-
-            # Similarity breakdown
-            st.divider()
-            st.subheader("📈 Similarity Breakdown")
-
-            breakdown = get_similarity_breakdown(
-                p1["player_name"],
-                p2["player_name"],
-            )
-
-            if breakdown:
-                breakdown_df = pd.DataFrame(
-                    [
-                        {
-                            "Stat": stat.upper(),
-                            "Similarity": f"{score:.2f}%",
-                        }
-                        for stat, score in breakdown.items()
-                    ]
-                )
-
-                st.dataframe(
-                    breakdown_df,
-                    use_container_width=True,
-                    hide_index=True,
-                )
-
-                chart_df = pd.DataFrame(
-                    {
-                        "Similarity": breakdown
-                    }
-                )
-
-                st.bar_chart(chart_df)
-
-            # Similarity explanation
-            st.info(
-                "The overall similarity score combines the statistical "
-                "similarity and the players' role profiles."
-            )
+        st.markdown('</div>', unsafe_allow_html=True)
