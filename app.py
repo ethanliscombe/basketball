@@ -1,5 +1,5 @@
 import streamlit as st
-from nba_backend import compare_players, get_similarity_breakdown
+from nba_backend import compare_players_data, get_similarity_breakdown
 
 # --------------------------------------------------
 # PAGE CONFIG
