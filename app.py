@@ -278,17 +278,15 @@ if compare:
         items = list(breakdown.items())
 
         for i, (stat, score) in enumerate(items):
-
-            with cols[i % 3]:
-
-                st.markdown(
-                    f"""
-                    <div class="stat-card">
-                        <div class="stat-name">{stat}</div>
-                        <div class="stat-value">{score:.1f}%</div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+    with cols[i % 3]:
+        st.markdown(
+            f"""
+            <div class="stat-card">
+                <div class="stat-name">{stat}</div>
+                <div class="stat-value">{score:.1f}%</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
         st.markdown('</div>', unsafe_allow_html=True)
