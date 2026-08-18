@@ -257,6 +257,9 @@ if compare:
             unsafe_allow_html=True
         )
 
+    if result.get("multiple_matches"):
+        st.warning("Multiple players matched. Please enter a more specific player name.")
+    else:
         st.markdown(
             f"""<div class="score">{result["similarity"]:.1f}%</div>""",
             unsafe_allow_html=True
