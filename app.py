@@ -277,9 +277,9 @@ if compare:
 
         items = list(breakdown.items())
 
-        for i, (stat, score) in enumerate(items):
-    with cols[i % 3]:
-        st.markdown(
+    for i, (stat, score) in enumerate(items):
+        with cols[i % 3]:
+            st.markdown(
             f"""
             <div class="stat-card">
                 <div class="stat-name">{stat}</div>
