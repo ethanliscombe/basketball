@@ -242,7 +242,7 @@ if compare:
 
     else:
 
-        result = compare_players(player1, player2)
+        result = compare_players_data(player1, player2)
         breakdown = get_similarity_breakdown(player1, player2)
 
         st.markdown('<div class="result-card">', unsafe_allow_html=True)
