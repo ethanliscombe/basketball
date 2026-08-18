@@ -13,7 +13,7 @@ SEASONS = list(range(2015, 2026))
 
 def load_season_data(year):
     """Load and clean one NBA season of player data."""
-    url = f"https://www.basketball-reference.com/leagues/NBA_{year}_per_game.html"
+    url = f"https://www.basketball-reference.com/leagues/NBA_{year + 1}_per_game.html"
     df = pd.read_html(url)[0]
 
     # Remove repeated header rows.
